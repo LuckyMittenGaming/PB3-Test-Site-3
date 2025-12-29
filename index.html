@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PB3 | Glass Edition</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/@studio-freight/lenis@1.0.34/dist/lenis.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: "#F5F5F7", /* Slightly cooler white */
+            ink: "#111111",
+            accent: "#FF2E2E", 
+          },
+          fontFamily: {
+            sans: ['Antonio', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'], /* The "Artsy" addition */
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --bg: #F5F5F7;
+      --fg: #111111;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--fg);
+      cursor: none; /* We are building a custom cursor */
+    }
+
+    /* Custom Cursor */
+    #cursor {
+      position: fixed;
+      top: 0; 
+      left: 0;
+      width: 20px;
+      height: 20px;
+      background: var(--fg);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: difference;
+      transition: width 0.3s, height 0.3s;
+    }
+    #cursor.hovered {
+      width: 60px;
+      height: 60px;
+      background: white;
+      border: 1px solid black;
+      mix-blend-mode: normal;
+      opacity: 0.9;
+    }
+
+    /* The Floating Video Preview */
+    #hover-reveal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 350px;
+      height: 220px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 50;
+      overflow: hidden;
+      transform: translate(-50%, -50%) scale(0.8);
+      transition: opacity 0.3s ease, transform 0.4s ease;
+      border-radius: 8px;
+    }
+    #hover-reveal.active {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    #hover-reveal video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* 3D Canvas sits ON TOP of text but allows clicks through it */
+    #canvas-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 10; 
+      pointer-events: none; /* Let clicks pass through to links */
+    }
+
+    /* Typography Tweaks */
+    .char { display: inline-block; }
+    
+    /* Smooth Selection */
+    ::selection { background: var(--fg); color: var(--bg); }
+  </style>
+</head>
+
+<body class="antialiased">
+
+  <div id="cursor"></div>
+
+  <div id="hover-reveal">
+    <video id="preview-video" src="" muted loop playsinline></video>
+  </div>
+
+  <div id="canvas-container"></div>
+
+  <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-8 py-6 mix-blend-difference text-white pointer-events-auto">
+    <div class="flex flex-col leading-none group cursor-pointer">
+      <span class="text-xl font-bold tracking-tighter">PB3</span>
+      <span class="text-[10px] font-serif italic opacity-80">Productions</span>
+    </div>
+    
+    <nav class="flex gap-12 font-sans text-sm font-bold uppercase tracking-widest">
+      <a href="#work" class="hover-trigger relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-white after:transition-all hover:after:w-full">Work</a>
+      <a href="#about" class="hover-trigger relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-white after:transition-all hover:after:w-full">Studio</a>
+      <a href="#contact" class="hover-trigger relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-white after:transition-all hover:after:w-full">Contact</a>
+    </nav>
+  </header>
+
+  <main class="relative z-0">
+    
+    <section class="relative min-h-screen flex flex-col justify-center px-8 md:px-20 pt-20">
+      
+      <div class="relative z-0 mix-blend-darken">
+        <div class="overflow-hidden">
+          <h1 class="hero-line text-[13vw] leading-[0.8] font-sans font-bold tracking-tight text-ink">
+            VISUAL
+          </h1>
+        </div>
+        <div class="overflow-hidden flex items-baseline gap-6">
+          <h1 class="hero-line text-[13vw] leading-[0.8] font-serif italic font-light text-ink">
+            Alchemy
+          </h1>
+          <span class="hero-sub hidden md:block w-48 text-xs font-sans font-bold uppercase tracking-widest leading-relaxed mt-4 border-t border-black pt-4">
+            We don't just shoot.<br>We transmute light into feeling.
+          </span>
+        </div>
+        <div class="overflow-hidden">
+          <h1 class="hero-line text-[13vw] leading-[0.8] font-sans font-bold tracking-tight text-ink">
+            STUDIO
+          </h1>
+        </div>
+      </div>
+
+      <div class="mt-12 flex justify-between items-end">
+        <div class="hero-fade opacity-0">
+          <button class="hover-trigger px-8 py-4 border border-black rounded-full text-sm font-bold uppercase hover:bg-black hover:text-white transition-colors duration-300">
+            Play Reel
+          </button>
+        </div>
+        <div class="hero-fade opacity-0 text-right">
+           <p class="font-serif italic text-lg">Est. 2024</p>
+           <p class="font-sans text-xs uppercase tracking-widest opacity-50">Las Vegas, NV</p>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="py-32 px-8 md:px-32 max-w-6xl mx-auto flex flex-col md:flex-row gap-12 items-start">
+      <div class="w-full md:w-1/3">
+        <span class="block w-3 h-3 bg-accent mb-6 rounded-full"></span>
+        <h3 class="font-sans font-bold text-sm uppercase tracking-widest opacity-50">The Philosophy</h3>
+      </div>
+      <div class="w-full md:w-2/3">
+        <p class="text-4xl md:text-6xl font-serif leading-tight">
+          "We reject the boring. We embrace the <span class="italic text-accent">glitch</span>, the grain, and the perfectly imperfect."
+        </p>
+        <div class="mt-12 grid grid-cols-2 gap-8 border-t border-black/10 pt-8">
+           <div>
+             <h4 class="font-bold uppercase text-xs mb-2">Intent</h4>
+             <p class="font-serif text-sm opacity-70">Every frame is a painting. No accidental shots.</p>
+           </div>
+           <div>
+            <h4 class="font-bold uppercase text-xs mb-2">Texture</h4>
+            <p class="font-serif text-sm opacity-70">Digital sharp meets analog soft. The PB3 signature.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="work" class="py-20">
+      <div class="px-8 mb-12 flex items-baseline justify-between border-b border-black pb-4">
+         <h2 class="text-9xl font-sans font-bold opacity-10">01</h2>
+         <span class="font-sans font-bold text-sm uppercase tracking-widest">Selected Works</span>
+      </div>
+
+      <div class="work-list">
+        
+        <a href="#" class="project-link hover-trigger group block border-b border-black/10 py-12 px-8 md:px-20 transition-colors hover:bg-white" 
+           data-video="https://i.imgur.com/Ap8pNcl.mp4">
+          <div class="flex flex-col md:flex-row md:items-baseline md:justify-between relative z-10 pointer-events-none">
+            <h3 class="text-6xl md:text-8xl font-serif italic text-ink group-hover:translate-x-4 transition-transform duration-500">Run Series</h3>
+            <div class="flex flex-col md:items-end mt-4 md:mt-0">
+               <span class="font-sans font-bold text-xs uppercase tracking-widest text-accent">Director / Edit</span>
+               <span class="font-sans text-xs opacity-40 uppercase">Brand Campaign</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="#" class="project-link hover-trigger group block border-b border-black/10 py-12 px-8 md:px-20 transition-colors hover:bg-white" 
+           data-video="https://i.imgur.com/yloxb75.mp4">
+          <div class="flex flex-col md:flex-row md:items-baseline md:justify-between relative z-10 pointer-events-none">
+            <h3 class="text-6xl md:text-8xl font-sans font-bold text-ink group-hover:translate-x-4 transition-transform duration-500 text-transparent" style="-webkit-text-stroke: 1px black;">NIGHT CUTS</h3>
+            <div class="flex flex-col md:items-end mt-4 md:mt-0">
+               <span class="font-sans font-bold text-xs uppercase tracking-widest text-accent">DP / Color</span>
+               <span class="font-sans text-xs opacity-40 uppercase">Fashion</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="#" class="project-link hover-trigger group block border-b border-black/10 py-12 px-8 md:px-20 transition-colors hover:bg-white" 
+           data-video="https://i.imgur.com/Zk7xv85.mp4">
+          <div class="flex flex-col md:flex-row md:items-baseline md:justify-between relative z-10 pointer-events-none">
+            <h3 class="text-6xl md:text-8xl font-serif italic text-ink group-hover:translate-x-4 transition-transform duration-500">Live Session</h3>
+            <div class="flex flex-col md:items-end mt-4 md:mt-0">
+               <span class="font-sans font-bold text-xs uppercase tracking-widest text-accent">Director</span>
+               <span class="font-sans text-xs opacity-40 uppercase">Music</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="#" class="project-link hover-trigger group block border-b border-black/10 py-12 px-8 md:px-20 transition-colors hover:bg-white" 
+           data-video="https://i.imgur.com/j7xXmCo.mp4">
+          <div class="flex flex-col md:flex-row md:items-baseline md:justify-between relative z-10 pointer-events-none">
+            <h3 class="text-6xl md:text-8xl font-sans font-bold text-ink group-hover:translate-x-4 transition-transform duration-500 text-transparent" style="-webkit-text-stroke: 1px black;">STREET DOC</h3>
+            <div class="flex flex-col md:items-end mt-4 md:mt-0">
+               <span class="font-sans font-bold text-xs uppercase tracking-widest text-accent">Editor</span>
+               <span class="font-sans text-xs opacity-40 uppercase">Documentary</span>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <section id="contact" class="min-h-[80vh] bg-ink text-paper px-8 py-20 flex flex-col justify-between">
+       <div class="grid md:grid-cols-2">
+         <div>
+           <h2 class="text-6xl md:text-8xl font-serif italic mb-8">Let's make<br>history.</h2>
+         </div>
+         <div class="md:text-right">
+            <div class="inline-block text-left">
+              <p class="font-sans font-bold text-xs uppercase tracking-widest opacity-50 mb-4">Inquiries</p>
+              <a href="mailto:hello@pb3.com" class="block text-2xl md:text-4xl hover:text-accent transition-colors mb-2">hello@pb3.com</a>
+              <a href="tel:+15550000000" class="block text-2xl md:text-4xl hover:text-accent transition-colors">+1 555 999 9999</a>
+            </div>
+         </div>
+       </div>
+
+       <div class="flex flex-col md:flex-row justify-between items-end mt-20">
+         <div class="mb-8 md:mb-0">
+            <div class="hover-trigger group cursor-pointer inline-flex items-center gap-4">
+              <img src="https://lasvegaspartybuses.com/wp-content/uploads/2025/12/Group-of-gold-turds2.svg" alt="PB3" class="w-16 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all">
+              <span class="font-sans font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0">We Shoot Cool Shit</span>
+            </div>
+         </div>
+         <div class="flex gap-8 font-sans font-bold text-xs uppercase tracking-widest">
+            <a href="#" class="hover:text-accent">Instagram</a>
+            <a href="#" class="hover:text-accent">Vimeo</a>
+            <a href="#" class="hover:text-accent">LinkedIn</a>
+         </div>
+       </div>
+    </section>
+
+  </main>
+
+  <script>
+    // --- 1. SETUP LENIS (SMOOTH SCROLL) ---
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smooth: true,
+    });
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // --- 2. CUSTOM CURSOR & HOVER REVEAL ---
+    const cursor = document.getElementById('cursor');
+    const hoverReveal = document.getElementById('hover-reveal');
+    const previewVideo = document.getElementById('preview-video');
+    const triggers = document.querySelectorAll('.hover-trigger');
+    const projectLinks = document.querySelectorAll('.project-link');
+
+    // Basic Cursor Follow
+    let mouseX = 0, mouseY = 0;
+    let cursorX = 0, cursorY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    // Smooth Cursor Animation Loop
+    function animateCursor() {
+      // Lerp (Linear Interpolation) for smoothness
+      cursorX += (mouseX - cursorX) * 0.15;
+      cursorY += (mouseY - cursorY) * 0.15;
+      
+      cursor.style.left = `${cursorX}px`;
+      cursor.style.top = `${cursorY}px`;
+      
+      // Move the reveal video
+      hoverReveal.style.left = `${mouseX}px`;
+      hoverReveal.style.top = `${mouseY}px`;
+
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // Hover States for Cursor
+    triggers.forEach(trigger => {
+      trigger.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+      trigger.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+    });
+
+    // Project Hover Video Logic
+    projectLinks.forEach(link => {
+      link.addEventListener('mouseenter', () => {
+        const videoSrc = link.getAttribute('data-video');
+        if (videoSrc) {
+          previewVideo.src = videoSrc;
+          previewVideo.play();
+          hoverReveal.classList.add('active');
+          cursor.style.opacity = '0'; // Hide standard cursor dot
+        }
+      });
+      link.addEventListener('mouseleave', () => {
+        hoverReveal.classList.remove('active');
+        previewVideo.pause();
+        cursor.style.opacity = '1';
+      });
+    });
+
+    // --- 3. GSAP ANIMATIONS ---
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero Reveal
+    const tl = gsap.timeline();
+    tl.from('.hero-line', {
+      yPercent: 120,
+      opacity: 0,
+      duration: 1.5,
+      ease: "power4.out",
+      stagger: 0.15
+    })
+    .to('.hero-fade', {
+      opacity: 1,
+      duration: 1
+    }, "-=1");
+
+    // --- 4. THREE.JS GLASS EFFECT ---
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    
+    // Camera
+    const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0, 15);
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    container.appendChild(renderer.domElement);
+
+    // Lighting (Crucial for glass)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+    
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    dirLight.position.set(5, 10, 7);
+    scene.add(dirLight);
+
+    const pointLight = new THREE.PointLight(0xFF2E2E, 2, 20); // Red accent light
+    pointLight.position.set(-5, 0, 5);
+    scene.add(pointLight);
+
+    // Glass Material
+    // We create a "Torus Knot" which looks complicated and beautiful in glass
+    const geometry = new THREE.TorusKnotGeometry(2, 0.6, 200, 32);
+    
+    const material = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      metalness: 0,
+      roughness: 0,
+      transmission: 1, // Glass-like transparency
+      thickness: 1.5, // Refraction
+      clearcoat: 1,
+      clearcoatRoughness: 0,
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    // Animation Variables
+    let scrollY = 0;
+    
+    // Listen to Lenis for scroll position (more accurate sync)
+    lenis.on('scroll', (e) => {
+      scrollY = e.scroll;
+    });
+
+    // Render Loop
+    const clock = new THREE.Clock();
+    
+    function animateThree() {
+      const t = clock.getElapsedTime();
+      
+      // Floating Motion
+      mesh.rotation.x = t * 0.2;
+      mesh.rotation.y = t * 0.25;
+
+      // React to Mouse (Parallax)
+      // We use the mouse coordinates from the cursor logic
+      const targetX = (mouseX / window.innerWidth - 0.5) * 4;
+      const targetY = -(mouseY / window.innerHeight - 0.5) * 4;
+      
+      mesh.position.x += (targetX - mesh.position.x) * 0.05;
+      mesh.position.y += (targetY - mesh.position.y) * 0.05;
+
+      // React to Scroll (Move shape out of the way or rotate it)
+      // For this demo, we'll just rotate it faster on scroll
+      mesh.rotation.z = scrollY * 0.001;
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(animateThree);
+    }
+    animateThree();
+
+    // Resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+  </script>
+</body>
+</html>
