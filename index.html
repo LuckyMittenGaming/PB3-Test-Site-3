@@ -45,6 +45,8 @@
       cursor: none; /* Custom cursor for desktop */
     }
 
+    /* --- UI ELEMENTS --- */
+
     /* Custom Cursor */
     #cursor {
       position: fixed;
@@ -66,7 +68,7 @@
       opacity: 0.9;
     }
 
-    /* Floating Video Preview */
+    /* Floating Video Preview (Desktop Hover) */
     #hover-reveal {
       position: fixed;
       top: 0; left: 0;
@@ -87,6 +89,16 @@
       width: 100%; height: 100%; object-fit: cover;
     }
 
+    /* Full Screen Video Modal */
+    #video-modal {
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    #video-modal.hidden-modal {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
     /* 3D Canvas */
     #canvas-container {
       position: fixed;
@@ -94,6 +106,14 @@
       width: 100%; height: 100%;
       z-index: 10; 
       pointer-events: none; 
+    }
+
+    /* Typography Utilities */
+    .hero-line-wrapper {
+      overflow: hidden;
+      /* Add padding to bottom to prevent descenders (g, y, p) from being clipped */
+      padding-bottom: 0.2em; 
+      margin-bottom: -0.2em;
     }
 
     /* --- MOBILE SAFEGUARDS --- */
@@ -121,6 +141,16 @@
   <div id="hover-reveal"><video id="preview-video" src="" muted loop playsinline></video></div>
   <div id="canvas-container"></div>
 
+  <div id="video-modal" class="hidden-modal fixed inset-0 z-[100] bg-black flex items-center justify-center p-4 md:p-12 cursor-auto">
+    <button id="close-modal" class="absolute top-6 right-6 z-10 text-white font-sans text-xs uppercase tracking-widest border border-white/30 rounded-full px-6 py-3 hover:bg-white hover:text-black transition-colors">
+      Close [X]
+    </button>
+    
+    <video id="modal-video" class="w-full h-full max-h-screen object-contain" controls playsinline>
+      <source src="" type="video/mp4">
+    </video>
+  </div>
+
   <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 md:px-8 py-6 mix-blend-difference text-white pointer-events-auto">
     <div class="flex flex-col leading-none group cursor-pointer">
       <span class="text-xl font-bold tracking-tighter">PB3</span>
@@ -141,21 +171,23 @@
     <section class="relative min-h-screen flex flex-col justify-center px-6 md:px-20 pt-20">
       
       <div class="relative z-0 mix-blend-darken">
-        <div class="overflow-hidden">
-          <h1 class="hero-line text-[14vw] leading-[0.8] font-sans font-bold tracking-tight text-ink">
+        <div class="hero-line-wrapper">
+          <h1 class="hero-line text-[14vw] leading-[0.9] font-sans font-bold tracking-tight text-ink">
             VISUAL
           </h1>
         </div>
-        <div class="overflow-hidden flex flex-wrap items-baseline gap-2 md:gap-6">
-          <h1 class="hero-line text-[14vw] leading-[0.8] font-serif italic font-light text-ink">
+        
+        <div class="hero-line-wrapper flex flex-wrap items-baseline gap-2 md:gap-6">
+          <h1 class="hero-line text-[14vw] leading-[0.9] font-serif italic font-light text-ink">
             Alchemy
           </h1>
           <span class="hero-sub hidden md:block w-48 text-xs font-sans font-bold uppercase tracking-widest leading-relaxed mt-4 border-t border-black pt-4">
             We don't just shoot.<br>We transmute light into feeling.
           </span>
         </div>
-        <div class="overflow-hidden">
-          <h1 class="hero-line text-[14vw] leading-[0.8] font-sans font-bold tracking-tight text-ink">
+        
+        <div class="hero-line-wrapper">
+          <h1 class="hero-line text-[14vw] leading-[0.9] font-sans font-bold tracking-tight text-ink">
             STUDIO
           </h1>
         </div>
@@ -163,7 +195,7 @@
 
       <div class="mt-12 flex justify-between items-end">
         <div class="hero-fade opacity-0">
-          <button class="hover-trigger px-8 py-4 border border-black rounded-full text-sm font-bold uppercase hover:bg-black hover:text-white transition-colors duration-300">
+          <button id="play-reel-btn" class="hover-trigger px-8 py-4 border border-black rounded-full text-sm font-bold uppercase hover:bg-black hover:text-white transition-colors duration-300">
             Play Reel
           </button>
         </div>
@@ -205,7 +237,7 @@
 
       <div class="work-list">
         
-        <a href="#" class="project-link hover-trigger group block border-b border-black/10 py-8 md:py-12 px-6 md:px-20 transition-colors hover:bg-white" 
+        <div class="project-link hover-trigger group block border-b border-black/10 py-8 md:py-12 px-6 md:px-20 transition-colors hover:bg-white cursor-pointer" 
            data-video="https://i.imgur.com/Ap8pNcl.mp4">
           <div class="flex flex-col md:flex-row md:items-baseline md:justify-between relative z-10 pointer-events-none">
             <h3 class="text-4xl md:text-8xl font-serif italic text-ink group-hover:translate-x-4 transition-transform duration-500">Run Series</h3>
@@ -214,9 +246,9 @@
                <span class="font-sans text-xs opacity-40 uppercase">Brand Campaign</span>
             </div>
           </div>
-        </a>
+        </div>
 
-        <a href="#" class="project-link hover-trigger group block border-b border-black/10 py-8 md:py-12 px-6 md:px-20 transition-colors hover:bg-white" 
+        <div class="project-link hover-trigger group block border-b border-black/10 py-8 md:py-12 px-6 md:px-20 transition-colors hover:bg-white cursor-pointer" 
            data-video="https://i.imgur.com/yloxb75.mp4">
           <div class="flex flex-col md:flex-row md:items-baseline md:justify-between relative z-10 pointer-events-none">
             <h3 class="text-4xl md:text-8xl font-sans font-bold text-ink group-hover:translate-x-4 transition-transform duration-500 md:text-transparent md:group-hover:text-ink md:style-outline">NIGHT CUTS</h3>
@@ -225,9 +257,9 @@
                <span class="font-sans text-xs opacity-40 uppercase">Fashion</span>
             </div>
           </div>
-        </a>
+        </div>
 
-        <a href="#" class="project-link hover-trigger group block border-b border-black/10 py-8 md:py-12 px-6 md:px-20 transition-colors hover:bg-white" 
+        <div class="project-link hover-trigger group block border-b border-black/10 py-8 md:py-12 px-6 md:px-20 transition-colors hover:bg-white cursor-pointer" 
            data-video="https://i.imgur.com/Zk7xv85.mp4">
           <div class="flex flex-col md:flex-row md:items-baseline md:justify-between relative z-10 pointer-events-none">
             <h3 class="text-4xl md:text-8xl font-serif italic text-ink group-hover:translate-x-4 transition-transform duration-500">Live Session</h3>
@@ -236,9 +268,9 @@
                <span class="font-sans text-xs opacity-40 uppercase">Music</span>
             </div>
           </div>
-        </a>
+        </div>
 
-        <a href="#" class="project-link hover-trigger group block border-b border-black/10 py-8 md:py-12 px-6 md:px-20 transition-colors hover:bg-white" 
+        <div class="project-link hover-trigger group block border-b border-black/10 py-8 md:py-12 px-6 md:px-20 transition-colors hover:bg-white cursor-pointer" 
            data-video="https://i.imgur.com/j7xXmCo.mp4">
           <div class="flex flex-col md:flex-row md:items-baseline md:justify-between relative z-10 pointer-events-none">
             <h3 class="text-4xl md:text-8xl font-sans font-bold text-ink group-hover:translate-x-4 transition-transform duration-500 md:text-transparent md:group-hover:text-ink md:style-outline">STREET DOC</h3>
@@ -247,7 +279,7 @@
                <span class="font-sans text-xs opacity-40 uppercase">Documentary</span>
             </div>
           </div>
-        </a>
+        </div>
 
       </div>
     </section>
@@ -293,7 +325,7 @@
   </style>
 
   <script>
-    // --- 1. SETUP SMOOTH SCROLL ---
+    // --- 1. SMOOTH SCROLL ---
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -305,8 +337,55 @@
     }
     requestAnimationFrame(raf);
 
-    // --- 2. DESKTOP INTERACTION (Disabled on Mobile via CSS/JS) ---
-    // Check if device is desktop (>1024px)
+    // --- 2. MODAL & VIDEO LOGIC (Works on Mobile & Desktop) ---
+    const modal = document.getElementById('video-modal');
+    const modalVideo = document.getElementById('modal-video');
+    const closeModalBtn = document.getElementById('close-modal');
+    const playReelBtn = document.getElementById('play-reel-btn');
+    const projectLinks = document.querySelectorAll('.project-link');
+
+    // Hero Reel URL
+    const REEL_URL = "https://lasvegaspartybuses.com/wp-content/uploads/2025/12/Productions3.mp4";
+
+    function openModal(url) {
+      modalVideo.src = url;
+      modal.classList.remove('hidden-modal');
+      modalVideo.play();
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden-modal');
+      modalVideo.pause();
+      modalVideo.currentTime = 0;
+      modalVideo.src = "";
+    }
+
+    // Event Listeners for Modal
+    closeModalBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      // Close if clicking outside video
+      if (e.target === modal) closeModal();
+    });
+
+    // A. "Play Reel" Button Logic
+    playReelBtn.addEventListener('click', () => {
+      openModal(REEL_URL);
+    });
+
+    // B. Project List Click Logic (For Mobile/Desktop Click)
+    projectLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        // Prevent default anchor behavior
+        e.preventDefault();
+        const videoSrc = link.getAttribute('data-video');
+        if (videoSrc) {
+          openModal(videoSrc);
+        }
+      });
+    });
+
+
+    // --- 3. DESKTOP HOVER INTERACTIONS ---
     const isDesktop = window.innerWidth > 1024;
 
     if (isDesktop) {
@@ -314,7 +393,6 @@
         const hoverReveal = document.getElementById('hover-reveal');
         const previewVideo = document.getElementById('preview-video');
         const triggers = document.querySelectorAll('.hover-trigger');
-        const projectLinks = document.querySelectorAll('.project-link');
 
         // Mouse Tracker
         let mouseX = 0, mouseY = 0;
@@ -341,13 +419,14 @@
         }
         animateCursor();
 
-        // Triggers
+        // Triggers for cursor size
         triggers.forEach(trigger => {
           trigger.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
           trigger.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
         });
 
-        // Hover Reveal Logic
+        // Hover Reveal Logic (Desktop Only)
+        // Note: Click logic is handled in Section 2 above
         projectLinks.forEach(link => {
           link.addEventListener('mouseenter', () => {
             const videoSrc = link.getAttribute('data-video');
@@ -366,7 +445,7 @@
         });
     }
 
-    // --- 3. GSAP ANIMATIONS ---
+    // --- 4. GSAP ANIMATIONS ---
     gsap.registerPlugin(ScrollTrigger);
 
     const tl = gsap.timeline();
@@ -382,7 +461,7 @@
       duration: 1
     }, "-=1");
 
-    // --- 4. THREE.JS GLASS (Only run if Desktop) ---
+    // --- 5. THREE.JS GLASS (Desktop Only) ---
     if (isDesktop) {
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
@@ -410,7 +489,7 @@
         pointLight.position.set(-5, 0, 5);
         scene.add(pointLight);
 
-        // Glass Object (Torus Knot)
+        // Glass Object
         const geometry = new THREE.TorusKnotGeometry(2, 0.6, 200, 32);
         
         const material = new THREE.MeshPhysicalMaterial({
@@ -437,7 +516,6 @@
           mesh.rotation.x = t * 0.2;
           mesh.rotation.y = t * 0.25;
 
-          // Parallax calculation
           const targetX = (mouseX / window.innerWidth - 0.5) * 4;
           const targetY = -(mouseY / window.innerHeight - 0.5) * 4;
           
