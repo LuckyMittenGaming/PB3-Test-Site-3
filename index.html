@@ -111,7 +111,6 @@
     /* Typography Utilities */
     .hero-line-wrapper {
       overflow: hidden;
-      /* Add padding to bottom to prevent descenders (g, y, p) from being clipped */
       padding-bottom: 0.2em; 
       margin-bottom: -0.2em;
     }
@@ -146,7 +145,7 @@
       Close [X]
     </button>
     
-    <video id="modal-video" class="w-full h-full max-h-screen object-contain" controls playsinline>
+    <video id="modal-video" class="w-full h-full max-h-screen object-contain" controls playsinline muted>
       <source src="" type="video/mp4">
     </video>
   </div>
@@ -337,18 +336,19 @@
     }
     requestAnimationFrame(raf);
 
-    // --- 2. MODAL & VIDEO LOGIC (Works on Mobile & Desktop) ---
+    // --- 2. MODAL & VIDEO LOGIC ---
     const modal = document.getElementById('video-modal');
     const modalVideo = document.getElementById('modal-video');
     const closeModalBtn = document.getElementById('close-modal');
     const playReelBtn = document.getElementById('play-reel-btn');
     const projectLinks = document.querySelectorAll('.project-link');
 
-    // Hero Reel URL
     const REEL_URL = "https://lasvegaspartybuses.com/wp-content/uploads/2025/12/Productions3.mp4";
 
     function openModal(url) {
       modalVideo.src = url;
+      // Force mute every time modal opens
+      modalVideo.muted = true;
       modal.classList.remove('hidden-modal');
       modalVideo.play();
     }
@@ -360,22 +360,17 @@
       modalVideo.src = "";
     }
 
-    // Event Listeners for Modal
     closeModalBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => {
-      // Close if clicking outside video
       if (e.target === modal) closeModal();
     });
 
-    // A. "Play Reel" Button Logic
     playReelBtn.addEventListener('click', () => {
       openModal(REEL_URL);
     });
 
-    // B. Project List Click Logic (For Mobile/Desktop Click)
     projectLinks.forEach(link => {
       link.addEventListener('click', (e) => {
-        // Prevent default anchor behavior
         e.preventDefault();
         const videoSrc = link.getAttribute('data-video');
         if (videoSrc) {
@@ -385,7 +380,7 @@
     });
 
 
-    // --- 3. DESKTOP HOVER INTERACTIONS ---
+    // --- 3. DESKTOP INTERACTIONS ---
     const isDesktop = window.innerWidth > 1024;
 
     if (isDesktop) {
@@ -419,14 +414,12 @@
         }
         animateCursor();
 
-        // Triggers for cursor size
         triggers.forEach(trigger => {
           trigger.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
           trigger.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
         });
 
-        // Hover Reveal Logic (Desktop Only)
-        // Note: Click logic is handled in Section 2 above
+        // Hover Reveal Logic
         projectLinks.forEach(link => {
           link.addEventListener('mouseenter', () => {
             const videoSrc = link.getAttribute('data-video');
@@ -461,23 +454,20 @@
       duration: 1
     }, "-=1");
 
-    // --- 5. THREE.JS GLASS (Desktop Only) ---
+    // --- 5. THREE.JS GLASS ---
     if (isDesktop) {
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         
-        // Camera
         const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
         camera.position.set(0, 0, 15);
 
-        // Renderer
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         container.appendChild(renderer.domElement);
 
-        // Lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
         
@@ -489,7 +479,6 @@
         pointLight.position.set(-5, 0, 5);
         scene.add(pointLight);
 
-        // Glass Object
         const geometry = new THREE.TorusKnotGeometry(2, 0.6, 200, 32);
         
         const material = new THREE.MeshPhysicalMaterial({
